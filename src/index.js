@@ -9,9 +9,9 @@ const app = express()
 
 // Add a custom middleware
 
-app.use((req, res, next) => {
-  res.status(503).send({message: "Maintenamce interruptions!"})
-})
+// app.use((req, res, next) => {
+//   res.status(503).send({message: "Maintenamce interruptions!"})
+// })
 
 app.use(express.json())
 app.use(userRouter)
