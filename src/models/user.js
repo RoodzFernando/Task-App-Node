@@ -47,7 +47,7 @@ const userSchema = new Schema({
 const signature = 'HelloMYName'
 userSchema.methods.generateAuthToken = async function () {
   const user = this
-  const token = jwt.sign({_id: user._id.toString()}, signature, {'expiresIn': '2 minutes'})
+  const token = jwt.sign({_id: user._id.toString()}, signature, {'expiresIn': '72 hours'})
   this.tokens = this.tokens.concat({token})
   await this.save()
   return token
