@@ -43,8 +43,14 @@ const userSchema = new Schema({
     }
   }]
 })
-// Signature JWT
-const signature = 'HelloMYName'
+const signature = process.env.SIGN
+userSchema.methods.toJSON = function() {
+  const user = this
+  const userObject = user.toObject()
+  delete userObject.password
+  delete userObject.tokens
+  return userObject
+}
 userSchema.methods.generateAuthToken = async function () {
   const user = this
   const token = jwt.sign({_id: user._id.toString()}, signature, {'expiresIn': '72 hours'})
@@ -53,10 +59,10 @@ userSchema.methods.generateAuthToken = async function () {
   return token
 }
 
+
 userSchema.statics.findByCredentials = async function (email, password) {
   const user = await this.findOne({email})
   const isMatch = await bcrypt.compare(password, user.password)
-  print(isMatch)
   if (!user) throw new Error('Unable to login')
   if (!isMatch) throw new Error('Unable to login')
   return user

@@ -19,12 +19,6 @@ router.post('/users', async (req, res) => {
 
 router.get('/users/me', auth, async (req, res) => {
   res.send(req.user)
-  // try {
-  //  const users = await User.find({})
-  //  res.send(users)
-  // } catch(e) {
-  //   res.status(400).send(e)
-  // }
 })
 
 router.get('/users/:id', async (req, res) => {
@@ -37,24 +31,22 @@ router.get('/users/:id', async (req, res) => {
   }
 })
 
-router.patch('/users/:id', async (req, res) => {
+router.patch('/users/me', auth, async (req, res) => {
   const modifiedFields = Object.keys(req.body)
   try {
-    const user = await User.findById(req.params.id)
+    const user = req.user
     modifiedFields.forEach(field => user[field] = req.body[field])
     await user.save()
-    if (!user) return res.status(404).send()
     res.send(user)
   } catch (error) {
     res.status(400).send(error)
   }
 })
 
-router.delete('/users/:id', async (req, res) => {
+router.delete('/users/me', auth, async (req, res) => {
   try {
-    const user = await User.findByIdAndRemove(req.params.id)
-    if (!user) return res.status(404).send()
-    res.send(user)
+    await req.user.remove()
+    res.send(req.user)
   } catch (e) {
     res.status(400).send()
   }
@@ -65,10 +57,30 @@ router.post('/users/login', async (req, res) => {
   try {
     const user = await User.findByCredentials(email, password)
     const token = await user.generateAuthToken()
-    res.send({token})
+    res.send({user, token})
   } catch (error) {
     print(error)
     res.status(400).send({'message': 'Unable to login'})
+  }
+})
+
+router.post('/users/logout', auth, async (req, res) => {
+  try {
+    req.user.tokens = req.user.tokens.filter(token => token.token !== req.token)
+    await req.user.save()
+    res.send()
+  } catch (e) {
+    res.status(500).send(e)
+  }
+})
+
+router.post('/users/logoutAll', auth, async (req, res) => {
+  try {
+    req.user.tokens = []
+    await req.user.save()
+    res.send({message: 'Logged out from all devices!'})
+  } catch (e) {
+    res.status(500).send()
   }
 })
 
