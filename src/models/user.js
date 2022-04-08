@@ -41,8 +41,8 @@ const userSchema = new Schema({
       type:String,
       required: true
     }
-  }]
-})
+  }],
+}, {timestamps: true, toJSON: {virtuals: true}})
 const signature = process.env.SIGN
 userSchema.virtual('tasks', {
   'ref': 'Task',

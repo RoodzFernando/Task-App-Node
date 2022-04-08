@@ -1,7 +1,9 @@
 const express = require('express')
 const Task = require('../models/task')
+const User = require('../models/user')
 const router = express.Router()
 const auth = require('../middleware/auth')
+const { rawListeners } = require('../models/task')
 
 
 router.post('/tasks', auth, async (req, res) => {
@@ -16,18 +18,24 @@ router.post('/tasks', auth, async (req, res) => {
 
 router.get('/tasks', auth, async (req, res) => {
   try {
-    const tasks = await Task.find({owner: req.user._id})
-    res.send(tasks)
+
+    await req.user.populate({
+      'path': 'tasks'
+    })
+    res.send(req.user.tasks)
   } catch (error) {
+    console.log(error)
     res.status(400).send(error)
   }
 })
 
 router.get('/tasks/:id', auth, async (req, res) => {
   try {
-    // const task = await Task.findOne({_id:req.params.id, owner: req.user._id})
-    const task = req.user.populate('tasks').execPopulate()
+    const task = await Task.findOne({_id: req.params.id, owner: req.user._id})
     if (!task) return res.status(404).send()
+    await task.populate({
+      'path': 'owner'
+    })
     res.send(task)
   } catch (error) {
     res.status(400).send(error)

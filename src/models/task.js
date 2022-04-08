@@ -15,6 +15,6 @@ const TaskSchema = new Schema({
     required: true,
     ref: 'User'
   }
-})
+}, {timestamps: true})
 
 module.exports = model('Task', TaskSchema)
