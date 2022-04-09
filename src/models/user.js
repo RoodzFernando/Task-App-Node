@@ -42,7 +42,7 @@ const userSchema = new Schema({
       required: true
     }
   }],
-}, {timestamps: true, toJSON: {virtuals: true}})
+}, {timestamps: true})
 const signature = process.env.SIGN
 userSchema.virtual('tasks', {
   'ref': 'Task',
