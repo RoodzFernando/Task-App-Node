@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs')
 const print = require('../utils')
 const jwt = require('jsonwebtoken')
 const Task = require('./task')
+const sharp = require('sharp')
 
 const userSchema = new Schema({
   name: {
@@ -36,6 +37,9 @@ const userSchema = new Schema({
       if (value.includes('password')) throw new Error('your password cannot contain "password"')
     }
   },
+  avatar: {
+    type: Buffer
+  },
   tokens: [{
     token: {
       type:String,
@@ -54,6 +58,7 @@ userSchema.methods.toJSON = function() {
   const userObject = user.toObject()
   delete userObject.password
   delete userObject.tokens
+  delete userObject.avatar
   return userObject
 }
 userSchema.methods.generateAuthToken = async function () {
